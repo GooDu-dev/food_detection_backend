@@ -1,0 +1,19 @@
+# Django and Django REST Framework
+Django>=3.2,<4.0
+djangorestframework>=3.12
+
+# Image processing
+Pillow>=8.2.0
+opencv-python-headless>=4.5.1
+
+# Machine learning
+numpy>=1.20.0
+scikit-learn>=0.24.1
+tensorflow>=2.4.1  # or another version if needed
+
+# Database
+psycopg2>=2.8.6  # For PostgreSQL, adjust if using a different database
+
+# Other utilities
+djangorestframework-simplejwt>=4.7.2  # For JWT authentication
+django-cors-headers>=3.7.0  # For handling CORS
