@@ -37,7 +37,7 @@ def predict_image(request):
     print(prediction)
     result = 'fresh' if prediction[0][0] > 0.7 else 'rotten'  
 
-    status, res = response.create_status_ok(data={
+    status, res = response.createStatusOK(data={
         "result": result,
         "prediction": prediction
     }, next="")
