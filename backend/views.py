@@ -29,13 +29,14 @@ def predict_image(request):
     # Converting image to RGB format
     image = image.convert('RGB')
     
-    image = image.resize((180, 180))  
+    image = image.resize((256, 256))  
     img_array = img_to_array(image)
     img_array = np.expand_dims(img_array, axis=0)  
+    img_array = img_array/255.0
 
     prediction = model.predict(img_array)
-    print(prediction)
-    result = 'fresh' if prediction[0][0] > 0.7 else 'rotten'  
+    predicted_index = np.argmax(prediction[0])
+    result = 'fresh' if predicted_index < 6 else 'rotten'
 
     status, res = response.createStatusOK(data={
         "result": result,
