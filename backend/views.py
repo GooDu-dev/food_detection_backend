@@ -12,6 +12,8 @@ from io import BytesIO
 import os
 import utils.errors as error
 import utils.response as response
+from utils.sample import FruitManager, FruitItem
+import json
 
 # Loading your pre-trained model
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -50,7 +52,118 @@ def predict_image(request):
 
     status, res = response.createStatusOK(data={
         "result": result,
-        "prediction": predicted_index
     }, next="")
 
+    return JsonResponse(res, status=status)
+
+@api_view(['GET'])
+def get_items_all(request):
+    manager = FruitManager()
+    result = manager.get_all().get_data()
+    if not result:
+        status, res = response.createStatusOK({
+            "result": []
+        }, next="/item")
+        return JsonResponse(res, status=status)
+    else:
+        status, res = response.createStatusOK({
+            "result": result
+        }, next="/item/id")
+        return JsonResponse(res, status=status)
+@api_view(['GET'])
+def get_item_by_id(request):
+    id = int(request.GET.get('product_id', 0))
+    if id <= 0:
+        status, res = error.RequestMissingFieldError.get_error_resposne()
+        return JsonResponse(res, status=status)
+    
+    manager = FruitManager()
+    result = manager.get_by_id(id).get_data()
+
+    if not result:
+        status, res = response.createStatusOK({
+            "result": []
+        }, next="/item")
+        return JsonResponse(res, status=status) 
+    else:
+        status, res = response.createStatusOK({
+            "result": result
+        }, next="")
+        return JsonResponse(res, status=status)
+
+@api_view(['GET'])
+def get_items_by_date(request):
+    date = request.GET.get('d', "")
+    if not date:
+        status, res = error.RequestMissingFieldError.get_error_resposne()
+        return JsonResponse(res, status=status)
+    
+    manager = FruitManager()
+    result = manager.get_by_date(options={
+        "date": date,
+        "operator": ""
+    }).get_data()
+    
+    if not result:
+        status, res = response.createStatusOK({
+            "result": []
+        }, next="/item")
+        return JsonResponse(res, status=status)
+    else:
+        status, res = response.createStatusOK({
+            "result": result
+        }, next="")
+        return JsonResponse(res, status=status)
+
+@api_view(['GET'])
+def get_items_by_name(request):
+    name = request.GET.get('name', "")
+    if not name:
+        status, res = error.RequestMissingFieldError.get_error_resposne()
+        return JsonResponse(res, status=status)
+    
+    manager = FruitManager()
+    result = manager.get_by_name(name).get_data()
+    
+    if not result or result == []:
+        status, res = response.createStatusOK({
+            "result": []
+        }, next="/item")
+        return JsonResponse(res, status=status)
+    else:
+        status, res = response.createStatusOK({
+            "result": result
+        }, next="")
+        return JsonResponse(res, status=status)
+
+@api_view(['POST'])
+def create_new_item(request):
+    data = json.loads(request.body)
+    name = data.get('name', "")
+    date_add = data.get('date', "")
+    
+    if not name or not date_add :
+        print("no name or date_add", name, date_add)
+        status, res = error.RequestMissingFieldError.get_error_resposne()
+        return JsonResponse(res, status=status)
+    
+    item = FruitItem(name=name, date_add=date_add, status="waiting")
+
+    manager = FruitManager()
+    index, err = manager.create_item(item)
+
+    if err :
+        if isinstance(err, error.Error):
+            status, res = err.get_error_resposne()
+            return JsonResponse(res, status=status)
+        else:
+            status, res = error.new_server_error(err)
+            return JsonResponse(res, status=status)
+    if not index:
+        status, res = error.new_server_error("Cannot get item index")
+        return JsonResponse(res, status=status)
+
+    status, res = response.createStatusCreated({
+        "id": index
+    }, next=f"/item?product_id={index}")
     return JsonResponse(res, status=status)
