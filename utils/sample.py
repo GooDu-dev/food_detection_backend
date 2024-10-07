@@ -113,3 +113,14 @@ class FruitManager:
         FruitManager._data.append(item)
 
         return item.get_id(), None
+    def change_item_status(self, id, status):
+        
+        manager = self.get_by_id(id=id)
+        if(status != "waiting" and status != "success" and status != "pending"):
+            return error.RequestInvalidError
+        
+        if(len(manager._data) == 0):
+            return []
+        else: 
+            manager._data[0].set_status(status=status)
+            return None
