@@ -39,8 +39,8 @@ class FruitItem:
 
 class FruitManager:
     _data: list[FruitItem] = [
-        FruitItem("apple", "2024-10-07", "Success"),
-        FruitItem("banana", "2024-10-09", "Waiting"),
+        FruitItem("apple", "2024-10-07", "success"),
+        FruitItem("banana", "2024-10-09", "waiting"),
     ]
 
     def __init__(self, data: list[FruitItem] = None):
