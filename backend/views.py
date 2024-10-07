@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.applications.vgg19 import preprocess_input
 from PIL import Image
 import numpy as np
 from io import BytesIO
@@ -29,10 +30,10 @@ def predict_image(request):
     # Converting image to RGB format
     image = image.convert('RGB')
     
-    image = image.resize((256, 256))  
+    image = image.resize((224, 224))  
     img_array = img_to_array(image)
-    img_array = np.expand_dims(img_array, axis=0)  
-    img_array = img_array/255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)
 
     prediction = model.predict(img_array)
     predicted_index = np.argmax(prediction[0])
