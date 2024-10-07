@@ -23,6 +23,12 @@ model = load_model(model_path)
 
 @api_view(['POST'])
 def predict_image(request): 
+    class_labels = [
+        'fresh_apple', 'fresh_banana', 'fresh_bitter_gourd', 
+        'fresh_capsicum', 'fresh_orange', 'fresh_tomato',
+        'stale_apple', 'stale_banana', 'stale_bitter_gourd', 
+        'stale_capsicum', 'stale_orange', 'stale_tomato'
+    ]
     if 'file' not in request.FILES:
         status, res = error.RequestMissingFieldError.get_error_resposne()
         return JsonResponse(res, status=status)
@@ -49,7 +55,7 @@ def predict_image(request):
     result = 'fresh' if predicted_index < 6 else 'rotten'
 
     status, res = response.createStatusOK(data={
-        "result": result,
+        "result": class_labels[predicted_index],
     }, next="")
 
     return JsonResponse(res, status=status)
@@ -164,4 +170,23 @@ def create_new_item(request):
     status, res = response.createStatusCreated({
         "id": index
     }, next=f"/item?product_id={index}")
+    return JsonResponse(res, status=status)
+
+@api_view(['PUT'])
+def change_item_status(request):
+    data = json.loads(request.body)
+    id = data.get('id')
+    status = data.get('status')
+
+    if not status:
+        _status, res = error.RequestMissingFieldError.get_error_resposne()
+        return JsonResponse(res, status=_status)
+    
+    manager = FruitManager()
+    err = manager.change_item_status(id, status)
+    if err is not None:
+        status, res = err.get_error_resposne()
+        return JsonResponse(res, status=status)
+    
+    status, res = response.createStatusOK({}, next="/items/")
     return JsonResponse(res, status=status)
