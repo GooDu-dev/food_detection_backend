@@ -77,6 +77,7 @@ CORS_ALLOW_HEADERS = [
     "authorization",
     "x-csrftoken",
     'x-requested-with',
+    'access-control-allow-headers',
 ]
 
 CORS_ALLOW_METHODS = [

@@ -142,7 +142,7 @@ def get_items_by_name(request):
 
 @api_view(['POST'])
 def create_new_item(request):
-    data = json.loads(request.body)
+    data = request.data
     name = data.get('name', "")
     date_add = data.get('date', "")
     
@@ -156,7 +156,7 @@ def create_new_item(request):
     manager = FruitManager()
     index, err = manager.create_item(item)
 
-    if err :
+    if err is not None :
         if isinstance(err, error.Error):
             status, res = err.get_error_resposne()
             return JsonResponse(res, status=status)
