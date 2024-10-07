@@ -34,14 +34,15 @@ class Error:
             "en_message": self._en_message,
             "nextURL": self._next
         }
-    def new_server_error(self, message):
-        err = InternalServerError
-        err.set_error_message(message)
-        return err
-    def new_client_error(self, message):
-        err = ClientError
-        err.set_error_message(message)
-        return err
+    
+def new_server_error(message):
+    err = InternalServerError
+    err.set_error_message(message)
+    return err
+def new_client_error(message):
+    err = ClientError
+    err.set_error_message(message)
+    return err
 
 # simple error value
 InternalServerError = Error(500, "10000", "เกิดบางอย่าผิดผลาด กรุณาลองใหม่อีกครั้งภายหลัง", "Something went wrong, please try again later", "", "")
