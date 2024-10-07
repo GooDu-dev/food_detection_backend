@@ -16,17 +16,24 @@ import utils.response as response
 
 # Loading your pre-trained model
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-model_path = os.path.join(BASE_DIR, 'backend', 'model.hdf5')
+model_path = os.path.join(BASE_DIR, 'backend', 'model.h5')
 model = load_model(model_path)
 
 @api_view(['POST'])
-def predict_image(request):
+def predict_image(request): 
     if 'file' not in request.FILES:
-        status, res = error.RequestMissingFieldError
+        status, res = error.RequestMissingFieldError.get_error_resposne()
         return JsonResponse(res, status=status)
     file = request.FILES['file']
-    image = Image.open(BytesIO(file.read()))
-    
+    if(file == None):
+        status, res = error.RequestMissingFieldError.get_error_resposne()
+        return JsonResponse(res, status=status)
+    image = Image.open(file)
+
+    if(image == None):
+        status, res = error.RequestInvalidError.get_error_resposne()
+        return JsonResponse(res, status=status)
+
     # Converting image to RGB format
     image = image.convert('RGB')
     
@@ -41,7 +48,7 @@ def predict_image(request):
 
     status, res = response.createStatusOK(data={
         "result": result,
-        "prediction": prediction
+        "prediction": predicted_index
     }, next="")
 
     return JsonResponse(res, status=status)
